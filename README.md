@@ -1,16 +1,3 @@
 # files_management_system
 
-A system to manage your files in a searchable records, with the ability to delete, edit, and add new files.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+A Files Management System (FMS) helps you mange your files in one place. Also, FMS offer a direct scanning through an external scanner to directly mange physical files.

@@ -1,0 +1,56 @@
+name: files_management_system
+description: A system to manage your files in a searchable records, with the ability to delete, edit, and add new files.
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+version: 1.0.0+1
+
+environment:
+  sdk: '>=2.19.6 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  window_size:
+    git:
+      url: https://github.com/google/flutter-desktop-embedding
+      path: plugins/window_size
+  # loading package -- do not upgrade
+  loading_animation_widget: ^1.1.0+5
+  # responsive package -- do not upgrade
+  flutter_screenutil: ^5.7.0
+  sqflite_common_ffi: ^2.2.5
+  hijri_picker: ^3.0.0
+  hijri: ^3.0.0
+  path_provider: ^2.0.15
+  jhijri_picker: ^1.0.0
+  jhijri: ^0.0.4
+  intl: ^0.17.0
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/Icon.png
+  #   - images/a_dot_ham.jpeg
+
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+

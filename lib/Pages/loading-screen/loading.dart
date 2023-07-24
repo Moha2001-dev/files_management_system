@@ -14,7 +14,7 @@ class _loadingState extends State<loading> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(86.h),
+        preferredSize: Size.fromHeight(80),
         child: AppBar(
           backgroundColor: Colors.white,
           elevation: 5,

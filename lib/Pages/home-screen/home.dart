@@ -496,9 +496,15 @@ class FilesArea extends StatefulWidget {
 
 class _filesAreaState extends State<FilesArea> {
 
+  _filesAreaState(){
+    _deleteCheckBox = false; // to edit
+  }
+
   SqlDb sqlDb = SqlDb();
   bool _executed = false;
   List<FMSFile> files = [];
+
+  bool? _deleteCheckBox = false;
 
   String? engNumberToFarsi() {
     String? number = widget.searchText;
@@ -860,7 +866,7 @@ class _filesAreaState extends State<FilesArea> {
                                           ),
                                           padding: EdgeInsets.zero,
                                           onPressed: (){
-                                            deleteRow(files[index].fileNum);
+                                            ShowAlertDialug(context, files[index].fileNum);
                                           },
                                         )
                                     ),
@@ -881,6 +887,184 @@ class _filesAreaState extends State<FilesArea> {
       ),
     );
   }
+
+  ShowAlertDialug(BuildContext context,String fileNumber){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              alignment: Alignment.center,
+              title: Align(
+                alignment: Alignment.center,
+                child: Container(
+                  width: 507,
+                  height: 299,
+                  alignment: Alignment.center,
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      Container(
+                        width: 507,
+                        height: 253,
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(13)
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'تأكيد الحذف',
+                              style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black
+                              ),
+                            ),
+                            SizedBox(height: 8,),
+                            Text(
+                              'سيتم حذف المعاملة رقم: ${fileNumber}',
+                              style: TextStyle(
+                                  fontSize: 25,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.normal
+                              ),
+                            ),
+                            SizedBox(height: 16,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Checkbox(
+                                  value: _deleteCheckBox,
+                                  onChanged: (select){
+                                    setState(() {
+                                      _deleteCheckBox = select;
+                                      //change settings
+                                    });
+                                  },
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4)
+                                  ),
+                                  side: BorderSide(
+                                    color: Color.fromARGB(255, 112, 112, 112),
+                                    width: 2,
+                                  ),
+                                  splashRadius: 0,
+                                  activeColor: Color.fromARGB(255, 55, 122, 176),
+                                ),
+                                SizedBox(width: 4,),
+                                Text(
+                                  'عدم تكرار الرسالة(يمكن تغيير الخيار من الاعدادات)',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: Color.fromARGB(255, 112, 112, 112),
+                                      fontWeight: FontWeight.w500
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16,),
+                            Container(
+                              width: 507,
+                              height: 69,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                    bottomLeft: Radius.circular(13),
+                                    bottomRight: Radius.circular(13),
+                                  ),
+                                  color: Color.fromARGB(255, 236, 236, 236)
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    margin: EdgeInsets.only(right: 8),
+                                    width: 231,
+                                    height: 53,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(13),
+                                        color: Color.fromARGB(255, 213, 84, 78)
+                                    ),
+                                    child: RawMaterialButton(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(13)
+                                      ),
+                                      onPressed: (){
+                                        deleteRow(fileNumber);
+                                        //save changes on settings
+                                        Navigator.of(context, rootNavigator: true).pop();
+                                      },
+                                      child: Text(
+                                        'حذف',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 25,
+                                            color: Colors.white
+                                        ),
+                                      ),
+                                      padding: EdgeInsets.zero,
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.only(right: 16),
+                                    child: RawMaterialButton(
+                                      hoverColor: Colors.transparent,
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      onPressed: (){
+                                        Navigator.of(context, rootNavigator: true).pop();
+                                      },
+                                      child: Text(
+                                        'الغاء',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: 25,
+                                            color: Colors.black
+                                        ),
+                                      ),
+                                      padding: EdgeInsets.zero,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.topCenter,
+                        child: Container(
+                          width: 92,
+                          height: 92,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color.fromARGB(255, 213, 84, 78),
+                          ),
+                          child:Icon(
+                            Icons.delete_outline_outlined,
+                            size: 62.6,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future<List> _processingData() {
     return Future.wait([
       // databaseTemp(),

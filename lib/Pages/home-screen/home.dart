@@ -529,16 +529,13 @@ class _filesAreaState extends State<FilesArea> {
   Future<List> loadData() async{
     String? search = widget.searchText;
     String where = '';
-    print('outside $search');
 
     if(search != null){
       search = engNumberToFarsi();
-      print('inside $search');
 
 
       RegExp regex = RegExp(r'^\d{4}/(\d|\d\d)/(\d|\d\d)');
       if (regex.hasMatch(search!.trim())) {
-        print('inside2 $search');
         var date = JHijri(fYear: int.parse(search.split('/')[0]),fMonth: int.parse(search.split('/')[1]),fDay: int.parse(search.split('/')[2]));
         search = DateFormat('yyyy-MM-dd').format(date.dateTime).toString();
       }

@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'Pages/settings-screen/settings.dart';
+import 'models/ApplicationSettings.dart';
 
 class profider extends StatefulWidget {
   @override
@@ -14,9 +16,10 @@ class profider extends StatefulWidget {
 
 class _profiderState extends State<profider> {
   SqlDb sqlDb = SqlDb();
+  ApplicationSettings settings = ApplicationSettings();
 
   bool _executed = false;
-  bool _executed1 = false;
+
 
   databaseTemp()async{
     //sqlDb.initalDB();
@@ -26,7 +29,7 @@ class _profiderState extends State<profider> {
     // print(response0); //DELETE
     //
     //
-    int response2 = await sqlDb.insertData("INSERT INTO 'FilesInfo' ('filenumber', 'filepath' , 'date', 'title') VALUES ('new','new','2023-12-15','hello');");
+    int response2 = await sqlDb.insertData("INSERT INTO 'Settings' ('CancelCheckBox', 'DeleteCheckBox' , 'Scanner') VALUES ('0','0','scanner1');");
     print(response2); //INSERT
     //
     //
@@ -34,8 +37,15 @@ class _profiderState extends State<profider> {
     // print(response1); //QUERY
   }
 
-  Future<List> loadData() async{
-    List<Map> response = await sqlDb.query("SELECT * FROM 'FilesInfo'");
+  Future<List> loadSettings() async{
+    List<Map> response = await sqlDb.query("SELECT * FROM 'Settings'");
+
+    if(response != null || response.length > 0){
+      settings.getSettings()?.setCancelCheckBox(response[0]['CancelCheckBox']);
+      settings.getSettings()?.setDeleteCheckBox(response[0]['DeleteCheckBox']);
+      settings.getSettings()?.scannerChoice = response[0]['Scanner'];
+    }
+
     return response;
   }
 
@@ -50,7 +60,7 @@ class _profiderState extends State<profider> {
           return loading();    ///Splash Screen
         else {
           _executed = true;
-          return home();
+          return Settings();
         }///Main Screen
       },
     );
@@ -59,7 +69,7 @@ class _profiderState extends State<profider> {
   Future<List> _processingData() {
     return Future.wait([
       //databaseTemp(),
-      loadData(),
+      loadSettings(),
     ]);
   }
 }

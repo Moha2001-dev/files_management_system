@@ -29,6 +29,7 @@ dependencies:
   jhijri_picker: ^1.0.0
   jhijri: ^0.0.4
   intl: ^0.17.0
+  flutter_twain_scanner: ^0.1.0
 
 
 dev_dependencies:

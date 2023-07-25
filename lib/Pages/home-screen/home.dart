@@ -1,3 +1,4 @@
+import 'package:files_management_system/Pages/add-screen/add.dart';
 import 'package:files_management_system/models/fms_file.dart';
 import 'package:files_management_system/sqldb.dart';
 import 'package:flutter/material.dart';
@@ -188,7 +189,8 @@ class _homeState extends State<home> {
                           alignment: Alignment.center,
                           child: IconButton(
                             padding: EdgeInsets.zero,
-                            onPressed: (){},
+                            onPressed: (){
+                            },
                             icon: Icon(
                               Icons.add_circle_outlined,
                               color: Color.fromARGB(255, 112, 112, 112),
@@ -256,7 +258,11 @@ class _homeState extends State<home> {
                       Align(
                           alignment: Alignment.center,
                           child: RawMaterialButton(
-                            onPressed: (){},
+                            onPressed: (){
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const AddFile()));
+                            },
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [

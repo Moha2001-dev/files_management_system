@@ -289,14 +289,14 @@ class _homeState extends State<home> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Icon(
-                                  Icons.add_circle_outlined,
+                                  Icons.settings,
                                   color: Color.fromARGB(255, 112, 112, 112),
                                   size: 24,
                                 ),
                                 Container(
                                   width: 68,
                                   child: Text(
-                                    'اضافة',
+                                    'اعدادات',
                                     style: TextStyle(
                                         color: Color.fromARGB(255, 112, 112, 112),
                                         fontWeight: FontWeight.bold,

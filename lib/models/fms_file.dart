@@ -15,7 +15,9 @@ class FMSFile {
   FMSFile.fmsDB(Map<dynamic,dynamic> query){
     this.fileNum = query['filenumber'];
     this.path = query['filepath'];
-    this._date = (query['date'] == '1010-01-01')? "" : HijriCalendar.fromDate(DateTime.parse(query['date'])).toString();
+    List<String> dateList = query['date'].toString().split('-');
+    DateTime dateTime = DateTime(int.parse(dateList[0]),int.parse(dateList[1]),int.parse(dateList[2]));
+    this._date = (query['date'] == '1010-01-01')? "" : HijriCalendar.fromDate(dateTime).toString();
     this.title = (query['title'] == 'empty')? "" : query['title'];
   }
 

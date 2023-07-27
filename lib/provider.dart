@@ -29,12 +29,13 @@ class _profiderState extends State<profider> {
     // print(response0); //DELETE
     //
     //
-    int response2 = await sqlDb.insertData("INSERT INTO 'Settings' ('CancelCheckBox', 'DeleteCheckBox' , 'Scanner') VALUES ('0','0','scanner1');");
-    print(response2); //INSERT
+    // print(23123);
+    // int response2 = await sqlDb.insertData("INSERT INTO 'FilesInfo' ('filenumber', 'filepath' , 'date' , 'title' , 'entryDate') VALUES ('2321','123','2023-3-4'  , 'asd', '2023-7-24');");
+    // print(response2); //INSERT
     //
     //
-    // List<Map> response1 = await sqlDb.query("SELECT * FROM 'FilesInfo';");
-    // print(response1); //QUERY
+    List<Map> response1 = await sqlDb.query("SELECT * FROM 'FilesInfo';");
+    print(response1); //QUERY
   }
 
   Future<List> loadSettings() async{
@@ -60,7 +61,7 @@ class _profiderState extends State<profider> {
           return loading();    ///Splash Screen
         else {
           _executed = true;
-          return Settings();
+          return home();
         }///Main Screen
       },
     );

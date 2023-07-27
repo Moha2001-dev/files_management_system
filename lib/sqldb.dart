@@ -23,7 +23,7 @@ class SqlDb{
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String path = join(appDocDir.path,databasePath,'FilesManagementSystem.db');
 
-    Database mydb = await openDatabase(path , onCreate: _onCreate, version: 9, onUpgrade: _onUpgrade);
+    Database mydb = await openDatabase(path , onCreate: _onCreate, version: 10, onUpgrade: _onUpgrade);
     return mydb;
   }
 
@@ -47,12 +47,7 @@ class SqlDb{
     Database? mydb = await db;
     print("${oldVersion}  ${newVersion}");
     mydb.execute('''
-    ALTER TABLE FilesInfo DROP COLUMN 'date';
-    ALTER TABLE FilesInfo DROP COLUMN 'title';
-    ''');
-    mydb.execute('''
-    ALTER TABLE FilesInfo ADD COLUMN 'date' DATE DEFAULT '1010-01-01' ;
-    ALTER TABLE FilesInfo ADD COLUMN 'title' TEXT DEFAULT 'empty';
+    ALTER TABLE FilesInfo ADD COLUMN 'entryDate' DATE DEFAULT '1010-01-01' ;
     ''');
   }
 
@@ -80,4 +75,10 @@ class SqlDb{
     return response;
   }
 
+
+  Future<List<Map<String, Object?>>> count(String sql) async{
+    Database? mydb = await db;
+    List<Map<String, Object?>> response = await mydb!.rawQuery(sql);
+    return response;
+  }
 }

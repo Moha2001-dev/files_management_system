@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_twain_scanner/flutter_twain_scanner.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../models/ApplicationSettings.dart';
 import '../../sqldb.dart';
@@ -16,6 +17,8 @@ class Settings extends StatefulWidget {
   @override
   State<Settings> createState() => _settings();
 }
+
+
 
 class _settings extends State<Settings> {
 
@@ -33,10 +36,14 @@ class _settings extends State<Settings> {
   bool _cancelCheck = false;
   bool _deleteCheck = false;
 
-  getSettings(){
+  getSettings() async{
+    await searchForScaner();
     _cancelCheck = settings.getSettings()?.getCancelCheckBox() as bool;
     _deleteCheck = settings.getSettings()?.getDeleteCheckBox() as bool;
     _selectedScanner = settings.getSettings()?.scannerChoice as String;
+    if(!_scanners.contains(_selectedScanner)){
+      _selectedScanner = null;
+    }
   }
 
   saveSettings() async{
@@ -48,7 +55,14 @@ class _settings extends State<Settings> {
     print(response0); //DELETE
   }
 
-
+  Future<void> searchForScaner() async {
+  List<String>? scanners = await _flutterTwainScannerPlugin.getDataSources();
+  if (scanners != null) {
+  setState(() {
+  _scanners = scanners;
+  });
+  }
+}
 
 
   String _platformVersion = 'Unknown';
@@ -78,13 +92,40 @@ class _settings extends State<Settings> {
     });
   }
 
-  int totalFiles = 42312312322;
-  int filesLastMonth = 123;
-  int filesLastWeek = 3;
 
+  int _totalFiles7Day = 0;
+  int _totalFiles30Day = 0;
+  int _totalFiles = 0;
+
+  Future<int> getNumberOfFiles() async{
+    int numberOfFiles = 0;
+    DateTime now = DateTime.now();
+
+    List<Map> response =await sql.count('SELECT COUNT (*) FROM FilesInfo');
+    _totalFiles = response[0]['COUNT (*)'];
+
+    DateTime period = DateTime(now.year,now.month,now.day - 7);
+    print(period);
+    response =await sql.count("SELECT COUNT (*) FROM FilesInfo WHERE entryDate <= '${now.year}-${now.month}-${now.day}' AND entryDate >='${period.year}-${period.month}-${period.day}' ;");
+    _totalFiles7Day = response[0]['COUNT (*)'];
+
+    period = DateTime(now.year,now.month,now.day - 30);
+    print(period);
+    response =await sql.count("SELECT COUNT (*) FROM FilesInfo WHERE entryDate <= '${now.year}-${now.month}-${now.day}' AND entryDate >='${period.year}-${period.month}-${period.day}' ;");
+    _totalFiles30Day = response[0]['COUNT (*)'];
+// WHERE entryDate > DATETIME('now', '-30 day');
+    // for(int index = 0; index<filesDates.length; index++){
+    //   int daysBetween = (now.difference(filesDates[index]).inHours / 24).round();
+    //   if(daysBetween<=numberOfDays){
+    //     numberOfFiles++;
+    //   }
+    // }
+
+    return 0;
+  }
+  bool _executed = false;
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: Size.fromHeight(80),
@@ -324,460 +365,474 @@ class _settings extends State<Settings> {
           )
       ),
       backgroundColor: const Color.fromARGB(255, 240, 244, 247),
-      body: SingleChildScrollView(
-        child: Center(
-          child: SizedBox(
-            width: 1684, // to be edited
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  margin: EdgeInsets.only(top: 27),
-                  alignment: Alignment.center,
-                  child: Text(
-                    'اعدادات',
-                    style: TextStyle(
-                      fontSize: 60,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: 8),
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    'اعدادات',
-                    style: TextStyle(
-                        fontSize: 49,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.black
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.center,
-                  child: Container(
-                    width: 1670,
-                    height: 322,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(23),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color.fromARGB(41, 0, 0, 0),
-                            spreadRadius: 1,
-                            blurRadius: 6,
-                            offset: Offset(0,4),
-                          )
-                        ]
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Stack(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(top: 5),
-                              child: Divider(
-                                indent: 40.w,
-                                endIndent: 40.w,
-                                color: Color.fromARGB(255, 112, 112, 112),
+      body: FutureBuilder(
+          future: _processingData(),
+          builder: (BuildContext context, AsyncSnapshot snapshot){
+            if(snapshot.connectionState == ConnectionState.waiting && !_executed)
+              return Center(
+                  child: LoadingAnimationWidget.staggeredDotsWave(color: Color.fromARGB(255, 255, 202, 40), size: 60.spMax)
+              );    ///Splash Screen
+            else {
+              _executed = true;
+              return SafeArea(
+                child: SingleChildScrollView(
+                  child: Center(
+                    child: SizedBox(
+                      width: 1684, // to be edited
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(top: 27),
+                            alignment: Alignment.center,
+                            child: Text(
+                              'اعدادات',
+                              style: TextStyle(
+                                  fontSize: 60,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black
                               ),
                             ),
-                            Container(
-                              width: 40,
-                              margin: EdgeInsets.only(right: 50,bottom: 5),
-                              alignment: Alignment.center,
-                              color: Colors.white,
-                              child: Text(
-                                'عام',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.black
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(right: 259,top: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Checkbox(
-                                value: _deleteCheck,
-                                onChanged: (select){
-                                  setState(() {
-                                    _deleteCheck = select!;
-                                    saveSettings();
-                                  });
-                                },
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4)
-                                ),
-                                side: BorderSide(
-                                  color: Color.fromARGB(255, 112, 112, 112),
-                                  width: 2,
-                                ),
-                                splashRadius: 0,
-                                activeColor: Color.fromARGB(255, 55, 122, 176),
-                              ),
-                              SizedBox(width: 4,),
-                              Text(
-                                'عدم تكرار رسالة تأكيد الحذف',
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    color: Color.fromARGB(255, 112, 112, 112),
-                                    fontWeight: FontWeight.w500
-                                ),
-                              ),
-                            ],
                           ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(right: 259,top: 8,bottom: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Checkbox(
-                                value: _cancelCheck,
-                                onChanged: (select){
-                                  setState(() {
-                                    _cancelCheck = select!;
-                                    saveSettings();
-                                  });
-                                },
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4)
-                                ),
-                                side: BorderSide(
-                                  color: Color.fromARGB(255, 112, 112, 112),
-                                  width: 2,
-                                ),
-                                splashRadius: 0,
-                                activeColor: Color.fromARGB(255, 55, 122, 176),
+                          Container(
+                            margin: EdgeInsets.only(top: 8),
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              'اعدادات',
+                              style: TextStyle(
+                                  fontSize: 49,
+                                  fontWeight: FontWeight.w300,
+                                  color: Colors.black
                               ),
-                              SizedBox(width: 4,),
-                              Text(
-                                r"عدم تكرار رسالة تأكيد الغاء الإضافة\التعديل",
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    color: Color.fromARGB(255, 112, 112, 112),
-                                    fontWeight: FontWeight.w500
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                        Stack(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(top:5),
-                              child: Divider(
-                                indent: 40.w,
-                                endIndent: 40.w,
-                                color: Color.fromARGB(255, 112, 112, 112),
+                          Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              width: 1670,
+                              height: 322,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(23),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Color.fromARGB(41, 0, 0, 0),
+                                      spreadRadius: 1,
+                                      blurRadius: 6,
+                                      offset: Offset(0,4),
+                                    )
+                                  ]
                               ),
-                            ),
-                            Container(
-                              width: 119,
-                              margin: EdgeInsets.only(right: 50,bottom: 4),
-                              alignment: Alignment.center,
-                              color: Colors.white,
-                              child: Text(
-                                'الماسح الضوئي',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.black
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(right: 259,top: 8),
-                          child: Column(
-                            children: [
-                              Row(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(
-                                    'تحديد جهاز الماسح الضوئي',
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black
+                                  Stack(
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5),
+                                        child: Divider(
+                                          indent: 40.w,
+                                          endIndent: 40.w,
+                                          color: Color.fromARGB(255, 112, 112, 112),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 40,
+                                        margin: EdgeInsets.only(right: 50,bottom: 5),
+                                        alignment: Alignment.center,
+                                        color: Colors.white,
+                                        child: Text(
+                                          'عام',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w400,
+                                              color: Colors.black
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.only(right: 259,top: 8),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Checkbox(
+                                          value: _deleteCheck,
+                                          onChanged: (select){
+                                            setState(() {
+                                              _deleteCheck = select!;
+                                              saveSettings();
+                                            });
+                                          },
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(4)
+                                          ),
+                                          side: BorderSide(
+                                            color: Color.fromARGB(255, 112, 112, 112),
+                                            width: 2,
+                                          ),
+                                          splashRadius: 0,
+                                          activeColor: Color.fromARGB(255, 55, 122, 176),
+                                        ),
+                                        SizedBox(width: 4,),
+                                        Text(
+                                          'عدم تكرار رسالة تأكيد الحذف',
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              color: Color.fromARGB(255, 112, 112, 112),
+                                              fontWeight: FontWeight.w500
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  Padding(
-                                    padding: EdgeInsets.only(right: 4),
-                                    child: Tooltip(
-                                      message: 'تحديد الماسح الضوئي الخارجي لمسح المعاملات مباشرة',
-                                      child: Icon(
-                                        Icons.info_outline,
-                                        color: Colors.black,
-                                        size: 30,
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
                                   Container(
-                                    width: 976.w,
-                                    height: 53,
-                                    margin: EdgeInsets.only(top: 8),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: Color.fromARGB(255, 112, 112, 112),width: 1.5)
+                                    margin: EdgeInsets.only(right: 259,top: 8,bottom: 8),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        Checkbox(
+                                          value: _cancelCheck,
+                                          onChanged: (select){
+                                            setState(() {
+                                              _cancelCheck = select!;
+                                              saveSettings();
+                                            });
+                                          },
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(4)
+                                          ),
+                                          side: BorderSide(
+                                            color: Color.fromARGB(255, 112, 112, 112),
+                                            width: 2,
+                                          ),
+                                          splashRadius: 0,
+                                          activeColor: Color.fromARGB(255, 55, 122, 176),
+                                        ),
+                                        SizedBox(width: 4,),
+                                        Text(
+                                          r"عدم تكرار رسالة تأكيد الغاء الإضافة\التعديل",
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              color: Color.fromARGB(255, 112, 112, 112),
+                                              fontWeight: FontWeight.w500
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    child: DropdownButtonHideUnderline(
-                                      child: DropdownButton(
-                                          hint: Text(
-                                            'اختر الماسح الضوئي',
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w400,
-                                                color: Colors.black
+                                  ),
+                                  Stack(
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(top:5),
+                                        child: Divider(
+                                          indent: 40.w,
+                                          endIndent: 40.w,
+                                          color: Color.fromARGB(255, 112, 112, 112),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 119,
+                                        margin: EdgeInsets.only(right: 50,bottom: 4),
+                                        alignment: Alignment.center,
+                                        color: Colors.white,
+                                        child: Text(
+                                          'الماسح الضوئي',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w400,
+                                              color: Colors.black
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.only(right: 259,top: 8),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              'تحديد جهاز الماسح الضوئي',
+                                              style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black
+                                              ),
                                             ),
-                                          ),
-                                          value: _selectedScanner,
-                                          items: _scanners.map((location) {
-                                          return DropdownMenuItem(
-                                            child: new Text(location),
-                                            value: location,
-                                          );
-                                        }).toList(),
-                                        onChanged: (newValue) {
-                                          setState(() {
-                                            _selectedScanner = newValue;
-                                          });
-                                        },
-                                        isExpanded: true,
-                                        icon: Container(
-                                          width: 55,
-                                          height: 53,
-                                          alignment: Alignment.center,
-                                          decoration: BoxDecoration(
-                                            color: Color.fromARGB(255, 219, 219, 219),
-                                            borderRadius: BorderRadius.only(
-                                              bottomLeft: Radius.circular(8),
-                                              topLeft: Radius.circular(8)
+                                            Padding(
+                                              padding: EdgeInsets.only(right: 4),
+                                              child: Tooltip(
+                                                message: 'تحديد الماسح الضوئي الخارجي لمسح المعاملات مباشرة',
+                                                child: Icon(
+                                                  Icons.info_outline,
+                                                  color: Colors.black,
+                                                  size: 30,
+                                                ),
+                                              ),
                                             )
-                                          ),
-                                          child: Icon(
-                                            Icons.keyboard_arrow_down_outlined,
-                                            size: 23.62,
-                                            color: Colors.black,
-                                          ),
+                                          ],
                                         ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(right: 8),
-                                    width: 167,
-                                    height: 53,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        color: Color.fromARGB(255, 55, 122, 176)
-                                    ),
-                                    child: RawMaterialButton(
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8)
-                                      ),
-                                      onPressed: () async {
-                                        List<String>? scanners = await _flutterTwainScannerPlugin.getDataSources();
-                                        if (scanners != null) {
-                                          setState(() {
-                                            _scanners = scanners;
-                                          });
-                                        }
-                                      },
-                                      child: Text(
-                                        'بحث',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 25,
-                                            color: Colors.white
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            Container(
+                                              width: 976.w,
+                                              height: 53,
+                                              margin: EdgeInsets.only(top: 8),
+                                              decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  border: Border.all(color: Color.fromARGB(255, 112, 112, 112),width: 1.5)
+                                              ),
+                                              child: DropdownButtonHideUnderline(
+                                                child: DropdownButton(
+                                                  hint: Text(
+                                                    'اختر الماسح الضوئي',
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight: FontWeight.w400,
+                                                        color: Colors.black
+                                                    ),
+                                                  ),
+                                                  value: _selectedScanner,
+                                                  items: _scanners.map((location) {
+                                                    return DropdownMenuItem(
+                                                      child: new Text(location),
+                                                      value: location,
+                                                    );
+                                                  }).toList(),
+                                                  onChanged: (newValue) {
+                                                    setState(() {
+                                                      _selectedScanner = newValue;
+                                                    });
+                                                  },
+                                                  isExpanded: true,
+                                                  icon: Container(
+                                                    width: 55,
+                                                    height: 53,
+                                                    alignment: Alignment.center,
+                                                    decoration: BoxDecoration(
+                                                        color: Color.fromARGB(255, 219, 219, 219),
+                                                        borderRadius: BorderRadius.only(
+                                                            bottomLeft: Radius.circular(8),
+                                                            topLeft: Radius.circular(8)
+                                                        )
+                                                    ),
+                                                    child: Icon(
+                                                      Icons.keyboard_arrow_down_outlined,
+                                                      size: 23.62,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              margin: EdgeInsets.only(right: 8),
+                                              width: 167,
+                                              height: 53,
+                                              decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  color: Color.fromARGB(255, 55, 122, 176)
+                                              ),
+                                              child: RawMaterialButton(
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(8)
+                                                ),
+                                                onPressed: searchForScaner,
+                                                child: Text(
+                                                  'بحث',
+                                                  style: TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 25,
+                                                      color: Colors.white
+                                                  ),
+                                                ),
+                                                padding: EdgeInsets.zero,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                      padding: EdgeInsets.zero,
+                                      ],
                                     ),
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: 53),
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    'إحصائيات عامة',
-                    style: TextStyle(
-                        fontSize: 49,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.black
-                    ),
-                  ),
-                ),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Container(
-                            width: 536.w,
-                            height: 154,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(23),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color.fromARGB(41, 0, 0, 0),
-                                    spreadRadius: 1,
-                                    blurRadius: 6,
-                                    offset: Offset(0,4),
-                                  )
-                                ],
                             ),
-                            child: Column(
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(top: 53),
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              'إحصائيات عامة',
+                              style: TextStyle(
+                                  fontSize: 49,
+                                  fontWeight: FontWeight.w300,
+                                  color: Colors.black
+                              ),
+                            ),
+                          ),
+                          Container(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(
-                                  '$totalFiles',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontSize: 60,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color.fromARGB(255, 55, 122, 176)
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Container(
+                                        width: 536.w,
+                                        height: 154,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(23),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Color.fromARGB(41, 0, 0, 0),
+                                              spreadRadius: 1,
+                                              blurRadius: 6,
+                                              offset: Offset(0,4),
+                                            )
+                                          ],
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              '${_totalFiles}',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  fontSize: 60,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color.fromARGB(255, 55, 122, 176)
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            Text(
+                                              'عدد المعاملات(الكلي)',
+                                              style: TextStyle(
+                                                  fontSize: 30,
+                                                  //fontWeight: FontWeight.bold,
+                                                  color: Colors.black
+                                              ),
+                                            )
+                                          ],
+                                        )
+                                    ),
                                   ),
-                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                Text(
-                                  'عدد المعاملات(الكلي)',
-                                  style: TextStyle(
-                                      fontSize: 30,
-                                      //fontWeight: FontWeight.bold,
-                                      color: Colors.black
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Container(
+                                        width: 536.w,
+                                        height: 154,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(23),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Color.fromARGB(41, 0, 0, 0),
+                                              spreadRadius: 1,
+                                              blurRadius: 6,
+                                              offset: Offset(0,4),
+                                            )
+                                          ],
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              '${_totalFiles30Day}',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  fontSize: 60,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color.fromARGB(255, 55, 122, 176)
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            Text(
+                                              'عدد المعاملات(اخر 30 يوم)',
+                                              style: TextStyle(
+                                                  fontSize: 30,
+                                                  //fontWeight: FontWeight.bold,
+                                                  color: Colors.black
+                                              ),
+                                            )
+                                          ],
+                                        )
+                                    ),
                                   ),
-                                )
+                                ),
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Container(
+                                        width: 536.w,
+                                        height: 154,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(23),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Color.fromARGB(41, 0, 0, 0),
+                                              spreadRadius: 1,
+                                              blurRadius: 6,
+                                              offset: Offset(0,4),
+                                            )
+                                          ],
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              '${_totalFiles7Day}',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  fontSize: 60,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color.fromARGB(255, 55, 122, 176)
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            Text(
+                                              'عدد المعاملات(اخر 7 ايام)',
+                                              style: TextStyle(
+                                                  fontSize: 30,
+                                                  //fontWeight: FontWeight.bold,
+                                                  color: Colors.black
+                                              ),
+                                            )
+                                          ],
+                                        )
+                                    ),
+                                  ),
+                                ),
                               ],
-                            )
-                          ),
-                        ),
+                            ),
+                          )
+                        ],
                       ),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Container(
-                              width: 536.w,
-                              height: 154,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(23),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color.fromARGB(41, 0, 0, 0),
-                                    spreadRadius: 1,
-                                    blurRadius: 6,
-                                    offset: Offset(0,4),
-                                  )
-                                ],
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    '$totalFiles',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontSize: 60,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color.fromARGB(255, 55, 122, 176)
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  Text(
-                                    'عدد المعاملات(الكلي)',
-                                    style: TextStyle(
-                                        fontSize: 30,
-                                        //fontWeight: FontWeight.bold,
-                                        color: Colors.black
-                                    ),
-                                  )
-                                ],
-                              )
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Container(
-                              width: 536.w,
-                              height: 154,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(23),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color.fromARGB(41, 0, 0, 0),
-                                    spreadRadius: 1,
-                                    blurRadius: 6,
-                                    offset: Offset(0,4),
-                                  )
-                                ],
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    '$totalFiles',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontSize: 60,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color.fromARGB(255, 55, 122, 176)
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  Text(
-                                    'عدد المعاملات(الكلي)',
-                                    style: TextStyle(
-                                        fontSize: 30,
-                                        //fontWeight: FontWeight.bold,
-                                        color: Colors.black
-                                    ),
-                                  )
-                                ],
-                              )
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                )
-              ],
-            ),
-          ),
-        ),
+                ),
+              );
+            }///Main Screen
+          }
       ),
     );
+  }
+
+
+  Future<List<int>> _processingData() {
+    return Future.wait([
+      getNumberOfFiles(),
+    ]);
   }
 }

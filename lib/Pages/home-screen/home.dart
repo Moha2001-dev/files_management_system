@@ -11,6 +11,9 @@ import 'package:jhijri/_src/_jHijri.dart';
 import 'package:jhijri/jHijri.dart';
 import 'dart:math';
 
+import '../add-screen/add.dart';
+import '../settings-screen/settings.dart';
+
 class home extends StatefulWidget {
   @override
   State<home> createState() => _homeState();
@@ -203,7 +206,12 @@ class _homeState extends State<home> {
                           alignment: Alignment.center,
                           child: IconButton(
                             padding: EdgeInsets.zero,
-                            onPressed: (){},
+                            onPressed: (){
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => Settings()),
+                              );
+                            },
                             icon: Icon(
                               Icons.settings,
                               color: Color.fromARGB(255, 112, 112, 112),
@@ -290,7 +298,12 @@ class _homeState extends State<home> {
                       Align(
                           alignment: Alignment.center,
                           child: RawMaterialButton(
-                            onPressed: (){},
+                            onPressed: (){
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => AddFile()),
+                              );
+                            },
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -365,7 +378,12 @@ class _homeState extends State<home> {
                       Align(
                           alignment: Alignment.center,
                           child: RawMaterialButton(
-                            onPressed: (){},
+                            onPressed: (){
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => Settings()),
+                              );
+                            },
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -452,7 +470,12 @@ class _homeState extends State<home> {
                           alignment: Alignment.center,
                           child: IconButton(
                             padding: EdgeInsets.zero,
-                            onPressed: (){},
+                            onPressed: (){
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => AddFile()),
+                              );
+                            },
                             icon: Icon(
                               Icons.add_circle_outlined,
                               color: Color.fromARGB(255, 112, 112, 112),
@@ -550,15 +573,15 @@ class _filesAreaState extends State<FilesArea> {
       where =  "WHERE filenumber LIKE '%${search}%' OR title LIKE '%${search}%' OR  date LIKE '${search}'";
     }
 
-    List<Map> response = await sqlDb.query("SELECT * FROM 'FilesInfo'" + where);
-    //print(response);
+    List<Map> response = await sqlDb.query("SELECT * FROM 'FilesInfo'"/* + where*/);
+    // print(111111111111111);
+    // print(response);
     //print(response.length);
     files.clear();
       for(int index = 0; index < response.length; index++){
         files.add(FMSFile.fmsDB(response[index]));
       }
     //print(_files.length);
-    //print(_files);
     return response;
   }
 

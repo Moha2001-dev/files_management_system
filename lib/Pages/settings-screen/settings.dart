@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_twain_scanner/flutter_twain_scanner.dart';
+import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../models/ApplicationSettings.dart';
@@ -98,31 +99,21 @@ class _settings extends State<Settings> {
   int _totalFiles = 0;
 
   Future<int> getNumberOfFiles() async{
-    int numberOfFiles = 0;
     DateTime now = DateTime.now();
 
     List<Map> response =await sql.count('SELECT COUNT (*) FROM FilesInfo');
     _totalFiles = response[0]['COUNT (*)'];
 
     DateTime period = DateTime(now.year,now.month,now.day - 7);
-    print(period);
     response =await sql.count("SELECT COUNT (*) FROM FilesInfo WHERE entryDate <= '${now.year}-${now.month}-${now.day}' AND entryDate >='${period.year}-${period.month}-${period.day}' ;");
     _totalFiles7Day = response[0]['COUNT (*)'];
 
     period = DateTime(now.year,now.month,now.day - 30);
-    print(period);
     response =await sql.count("SELECT COUNT (*) FROM FilesInfo WHERE entryDate <= '${now.year}-${now.month}-${now.day}' AND entryDate >='${period.year}-${period.month}-${period.day}' ;");
     _totalFiles30Day = response[0]['COUNT (*)'];
-// WHERE entryDate > DATETIME('now', '-30 day');
-    // for(int index = 0; index<filesDates.length; index++){
-    //   int daysBetween = (now.difference(filesDates[index]).inHours / 24).round();
-    //   if(daysBetween<=numberOfDays){
-    //     numberOfFiles++;
-    //   }
-    // }
-
     return 0;
   }
+
   bool _executed = false;
   @override
   Widget build(BuildContext context) {
@@ -378,7 +369,7 @@ class _settings extends State<Settings> {
                 child: SingleChildScrollView(
                   child: Center(
                     child: SizedBox(
-                      width: 1684, // to be edited
+                      width: 1684.w, // to be edited
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -410,7 +401,7 @@ class _settings extends State<Settings> {
                           Align(
                             alignment: Alignment.center,
                             child: Container(
-                              width: 1670,
+                              width: 1670.w+8,
                               height: 322,
                               decoration: BoxDecoration(
                                   color: Colors.white,
@@ -454,7 +445,9 @@ class _settings extends State<Settings> {
                                     ],
                                   ),
                                   Container(
-                                    margin: EdgeInsets.only(right: 259,top: 8),
+                                    margin: EdgeInsets.only(top: 8),
+                                    width: 1151.w,
+                                    alignment: Alignment.centerRight,
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.start,
                                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -490,7 +483,9 @@ class _settings extends State<Settings> {
                                     ),
                                   ),
                                   Container(
-                                    margin: EdgeInsets.only(right: 259,top: 8,bottom: 8),
+                                    margin: EdgeInsets.only(top: 8,bottom: 8),
+                                    width: 1151.w,
+                                    alignment: Alignment.centerRight,
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.start,
                                       children: [
@@ -551,7 +546,9 @@ class _settings extends State<Settings> {
                                     ],
                                   ),
                                   Container(
-                                    margin: EdgeInsets.only(right: 259,top: 8),
+                                    margin: EdgeInsets.only(top: 8),
+                                    width: 1151.w+8,
+                                    alignment: Alignment.centerRight,
                                     child: Column(
                                       children: [
                                         Row(
@@ -582,7 +579,7 @@ class _settings extends State<Settings> {
                                           crossAxisAlignment: CrossAxisAlignment.end,
                                           children: [
                                             Container(
-                                              width: 976.w,
+                                              width: 976.w> 976? 976: 976.w,
                                               height: 53,
                                               margin: EdgeInsets.only(top: 8),
                                               decoration: BoxDecoration(
@@ -592,7 +589,7 @@ class _settings extends State<Settings> {
                                               child: DropdownButtonHideUnderline(
                                                 child: DropdownButton(
                                                   hint: Text(
-                                                    'اختر الماسح الضوئي',
+                                                    '  اختر الماسح الضوئي',
                                                     style: TextStyle(
                                                         fontSize: 16,
                                                         fontWeight: FontWeight.w400,
@@ -602,7 +599,10 @@ class _settings extends State<Settings> {
                                                   value: _selectedScanner,
                                                   items: _scanners.map((location) {
                                                     return DropdownMenuItem(
-                                                      child: new Text(location),
+                                                      child: Row(children: [
+                                                        Text('  '),
+                                                        Expanded(child: Text(location,overflow: TextOverflow.ellipsis,)),
+                                                      ],),
                                                       value: location,
                                                     );
                                                   }).toList(),
@@ -633,28 +633,31 @@ class _settings extends State<Settings> {
                                                 ),
                                               ),
                                             ),
-                                            Container(
-                                              margin: EdgeInsets.only(right: 8),
-                                              width: 167,
-                                              height: 53,
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                  color: Color.fromARGB(255, 55, 122, 176)
-                                              ),
-                                              child: RawMaterialButton(
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.circular(8)
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Container(
+                                                height: 53,
+                                                margin: EdgeInsets.only(right: 8),
+                                                width: 167.w>167? 167:167.w,
+                                                decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(8),
+                                                    color: Color.fromARGB(255, 55, 122, 176)
                                                 ),
-                                                onPressed: searchForScaner,
-                                                child: Text(
-                                                  'بحث',
-                                                  style: TextStyle(
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 25,
-                                                      color: Colors.white
+                                                child: RawMaterialButton(
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(8)
                                                   ),
+                                                  onPressed: searchForScaner,
+                                                  child: MediaQuery.of(context).size.width > 1005? Text(
+                                                    'بحث',
+                                                    style: TextStyle(
+                                                        fontWeight: FontWeight.bold,
+                                                        fontSize: 25,
+                                                        color: Colors.white
+                                                    ),
+                                                  ) : Icon(Icons.search, color: Colors.white,size: 30,),
+                                                  padding: EdgeInsets.zero,
                                                 ),
-                                                padding: EdgeInsets.zero,
                                               ),
                                             ),
                                           ],
@@ -679,6 +682,7 @@ class _settings extends State<Settings> {
                             ),
                           ),
                           Container(
+                            padding: EdgeInsets.only(top: 5),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -704,7 +708,7 @@ class _settings extends State<Settings> {
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              '${_totalFiles}',
+                                              '${NumberFormat.compactCurrency(decimalDigits: 1, symbol: '').format(_totalFiles)}',
                                               textAlign: TextAlign.center,
                                               style: TextStyle(
                                                   fontSize: 60,
@@ -716,7 +720,7 @@ class _settings extends State<Settings> {
                                             Text(
                                               'عدد المعاملات(الكلي)',
                                               style: TextStyle(
-                                                  fontSize: 30,
+                                                  fontSize: 30.w,
                                                   //fontWeight: FontWeight.bold,
                                                   color: Colors.black
                                               ),
@@ -748,7 +752,7 @@ class _settings extends State<Settings> {
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              '${_totalFiles30Day}',
+                                              '${NumberFormat.compactCurrency(decimalDigits: 1, symbol: '').format(_totalFiles30Day)}',
                                               textAlign: TextAlign.center,
                                               style: TextStyle(
                                                   fontSize: 60,
@@ -760,7 +764,7 @@ class _settings extends State<Settings> {
                                             Text(
                                               'عدد المعاملات(اخر 30 يوم)',
                                               style: TextStyle(
-                                                  fontSize: 30,
+                                                  fontSize: 30.w,
                                                   //fontWeight: FontWeight.bold,
                                                   color: Colors.black
                                               ),
@@ -792,7 +796,7 @@ class _settings extends State<Settings> {
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              '${_totalFiles7Day}',
+                                              '${NumberFormat.compactCurrency(decimalDigits: 1, symbol: '').format(_totalFiles7Day)}',
                                               textAlign: TextAlign.center,
                                               style: TextStyle(
                                                   fontSize: 60,
@@ -804,7 +808,7 @@ class _settings extends State<Settings> {
                                             Text(
                                               'عدد المعاملات(اخر 7 ايام)',
                                               style: TextStyle(
-                                                  fontSize: 30,
+                                                  fontSize: 30.w,
                                                   //fontWeight: FontWeight.bold,
                                                   color: Colors.black
                                               ),

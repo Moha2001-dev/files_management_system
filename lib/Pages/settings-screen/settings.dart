@@ -29,19 +29,18 @@ class _settings extends State<Settings> {
   void initState(){
     super.initState();
     initPlatformState();
-    settings = ApplicationSettings();
     getSettings();
   }
 
-  late ApplicationSettings settings;
+  ApplicationSettings settings = ApplicationSettings();
   bool _cancelCheck = false;
   bool _deleteCheck = false;
 
   getSettings() async{
     await searchForScaner();
-    _cancelCheck = settings.getSettings()?.getCancelCheckBox() as bool;
-    _deleteCheck = settings.getSettings()?.getDeleteCheckBox() as bool;
-    _selectedScanner = settings.getSettings()?.scannerChoice as String;
+    _cancelCheck = await settings.getSettings()?.getCancelCheckBox() as bool;
+    _deleteCheck = await settings.getSettings()?.getDeleteCheckBox() as bool;
+    _selectedScanner = await settings.getSettings()?.scannerChoice as String;
     if(!_scanners.contains(_selectedScanner)){
       _selectedScanner = null;
     }
@@ -49,11 +48,9 @@ class _settings extends State<Settings> {
 
   saveSettings() async{
     int response = await sql.updateData("UPDATE 'Settings' SET DeleteCheckBox = ${(_deleteCheck? 1 : 0)}, CancelCheckBox = ${(_cancelCheck? 1 : 0)}, Scanner = '$_selectedScanner' ");
-    print(response);
-
-
-    var response0 = await sql.query("SELECT * FROM 'Settings';");
-    print(response0); //DELETE
+    settings.getSettings()?.scannerChoice = _selectedScanner;
+    settings.getSettings()?..setDeleteCheckBox(_deleteCheck?1:0);
+    settings.getSettings()?.setCancelCheckBox(_cancelCheck?1:0);
   }
 
   Future<void> searchForScaner() async {
@@ -144,6 +141,7 @@ class _settings extends State<Settings> {
                             child: IconButton(
                               padding: EdgeInsets.zero,
                               onPressed: (){
+                                saveSettings();
                                 Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
                                     home()), (Route<dynamic> route) => false);
                               },
@@ -160,6 +158,7 @@ class _settings extends State<Settings> {
                             child: IconButton(
                               padding: EdgeInsets.zero,
                               onPressed: (){
+                                saveSettings();
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(builder: (context) => AddFile())
@@ -206,6 +205,7 @@ class _settings extends State<Settings> {
                             alignment: Alignment.center,
                             child: RawMaterialButton(
                               onPressed: (){
+                                saveSettings();
                                 Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
                                     home()), (Route<dynamic> route) => false);
                               },
@@ -237,6 +237,7 @@ class _settings extends State<Settings> {
                             alignment: Alignment.center,
                             child: RawMaterialButton(
                               onPressed: (){
+                                saveSettings();
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(builder: (context) => AddFile())

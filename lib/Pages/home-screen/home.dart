@@ -193,6 +193,9 @@ class _homeState extends State<home> {
                           child: IconButton(
                             padding: EdgeInsets.zero,
                             onPressed: (){
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => AddFile()));
                             },
                             icon: Icon(
                               Icons.add_circle_outlined,
@@ -269,7 +272,7 @@ class _homeState extends State<home> {
                             onPressed: (){
                               Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const AddFile()));
+                                  MaterialPageRoute(builder: (context) => AddFile()));
                             },
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,

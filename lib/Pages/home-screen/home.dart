@@ -301,7 +301,7 @@ class _homeState extends State<home> {
                             onPressed: (){
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => AddFile()),
+                                MaterialPageRoute(builder: (context) => Settings()),
                               );
                             },
                             child: Row(

@@ -689,7 +689,7 @@ class _settings extends State<Settings> {
                               children: [
                                 Expanded(
                                   child: Align(
-                                    alignment: Alignment.center,
+                                    alignment: Alignment.centerRight,
                                     child: Container(
                                         width: 536.w,
                                         height: 154,
@@ -777,7 +777,7 @@ class _settings extends State<Settings> {
                                 ),
                                 Expanded(
                                   child: Align(
-                                    alignment: Alignment.center,
+                                    alignment: Alignment.centerLeft,
                                     child: Container(
                                         width: 536.w,
                                         height: 154,

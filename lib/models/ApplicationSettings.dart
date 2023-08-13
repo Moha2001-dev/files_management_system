@@ -1,10 +1,22 @@
+import 'package:files_management_system/sqldb.dart';
 
 class ApplicationSettings{
   static applicationSettings? settings;
+  SqlDb sqlDb = SqlDb();
 
   applicationSettings? getSettings (){
     settings ??= applicationSettings();
     return settings;
+  }
+
+  Future<List> loadSettings() async{
+    List<Map> response = await sqlDb.query("SELECT * FROM 'Settings'");
+    if(response != null || response.length > 0){
+      getSettings()?.setCancelCheckBox(response[0]['CancelCheckBox']);
+      getSettings()?.setDeleteCheckBox(response[0]['DeleteCheckBox']);
+      getSettings()?.scannerChoice = response[0]['Scanner'];
+    }
+    return response;
   }
 
 }

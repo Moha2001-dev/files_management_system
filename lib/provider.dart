@@ -7,8 +7,14 @@ import 'package:files_management_system/models/ApplicationSettings.dart';
 
 /// [Provider] Class helps loading settings and navigate between screens
 /// as [Provider] class act like a base checkpoint whenever route tree get cleared.
-class Provider extends StatelessWidget {
-  Provider({super.key});
+class Provider extends StatefulWidget{
+  const Provider({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _ProviderState();
+}
+
+class _ProviderState extends State<Provider> {
   SettingsInterface settings = SettingsInterface();
   bool _isProviderLoaded = false;
 
@@ -18,11 +24,13 @@ class Provider extends StatelessWidget {
       future: _processingData(),
       builder: (BuildContext context, AsyncSnapshot snapshot){
         if(snapshot.connectionState == ConnectionState.waiting && !_isProviderLoaded) {
-          return const loading();    ///Splash Screen
+          ///Splash Screen
+          return const loading();
         } else {
           _isProviderLoaded = true;
+          ///Main Screen
           return Home();
-        }///Main Screen
+        }
       },
     );
   }

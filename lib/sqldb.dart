@@ -1,33 +1,29 @@
-import 'dart:io';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+
+/// [SqlDb] provide an interface and easy
+/// access to the database shared object.
 class SqlDb{
+  static Database? _appDB;
 
-  static Database? _db;
-
-  Future<Database?> get db async{
-    if(_db == null){
-      _db = await initalDB();
-      return _db;
-    }else{
-      return _db;
-    }
+  /// if database are initialized, return database
+  /// if database aren't initialized, initialize database then return it.
+  Future<Database?> get appDB async{
+    _appDB ??= await initDB();
+    return _appDB;
   }
 
 
-  //initiate Database
-  initalDB() async {
-    String databasePath = await getDatabasesPath(); //get local database path
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String path = join(appDocDir.path,databasePath,'FilesManagementSystem.db');
-
-    Database mydb = await openDatabase(path , onCreate: _onCreate, version: 10, onUpgrade: _onUpgrade);
-    return mydb;
+  /// initialize database by getting the database default path
+  initDB() async {
+    String databasePath = await getDatabasesPath();
+    String path = join(databasePath,'FilesManagementSystem.db');
+    Database myDB = await openDatabase(path , onCreate: _onCreate, version: 10, onUpgrade: _onUpgrade);
+    return myDB;
   }
 
-  //once the database created the followings tables will be created
+  /// create database with relations.
   _onCreate(Database db, int version) async{
     await db.execute('''
     CREATE TABLE "FilesInfo" (
@@ -42,43 +38,47 @@ class SqlDb{
     ''');
   }
 
+  /// update database structure, tables, columns, etc...
   _onUpgrade(Database db, int oldVersion, int newVersion) async{
-    print("_onUpgrade ================================");
-    Database? mydb = await db;
-    print("${oldVersion}  ${newVersion}");
-    mydb.execute('''
-    ALTER TABLE FilesInfo ADD COLUMN 'entryDate' DATE DEFAULT '1010-01-01' ;
+    Database? myDB = await db;
+    myDB.execute('''
+    
     ''');
   }
 
+
+  /// fetch data from database
   query(String sql) async{
-    Database? mydb = await db;
-    List<Map> response = await mydb!.rawQuery(sql);
+    Database? myDB = await appDB;
+    List<Map> response = await myDB!.rawQuery(sql);
     return response;
   }
 
+  /// insert new data into the database
   insertData(String sql) async{
-    Database? mydb = await db;
-    int response = await mydb!.rawInsert(sql);
+    Database? myDB = await appDB;
+    int response = await myDB!.rawInsert(sql);
     return response;
   }
 
+  /// Update existing data from the database
   updateData(String sql) async{
-    Database? mydb = await db;
-    int response = await mydb!.rawUpdate(sql);
+    Database? myDB = await appDB;
+    int response = await myDB!.rawUpdate(sql);
     return response;
   }
 
+  /// delete existing record from the database
   deleteData(String sql) async{
-    Database? mydb = await db;
-    int response = await mydb!.rawDelete(sql);
+    Database? myDB = await appDB;
+    int response = await myDB!.rawDelete(sql);
     return response;
   }
 
-
+  /// fetch number of records/fields from the database; helps with statistics
   Future<List<Map<String, Object?>>> count(String sql) async{
-    Database? mydb = await db;
-    List<Map<String, Object?>> response = await mydb!.rawQuery(sql);
+    Database? myDB = await appDB;
+    List<Map<String, Object?>> response = await myDB!.rawQuery(sql);
     return response;
   }
 }

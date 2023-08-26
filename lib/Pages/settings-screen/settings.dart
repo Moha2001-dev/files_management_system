@@ -32,7 +32,7 @@ class _settings extends State<Settings> {
     getSettings();
   }
 
-  ApplicationSettings settings = ApplicationSettings();
+  SettingsInterface settings = SettingsInterface();
   bool _cancelCheck = false;
   bool _deleteCheck = false;
 
@@ -40,7 +40,7 @@ class _settings extends State<Settings> {
     await searchForScaner();
     _cancelCheck = await settings.getSettings()?.getCancelCheckBox() as bool;
     _deleteCheck = await settings.getSettings()?.getDeleteCheckBox() as bool;
-    _selectedScanner = await settings.getSettings()?.scannerChoice as String;
+    _selectedScanner = await settings.getSettings()?.getScannerChoice() as String;
     if(!_scanners.contains(_selectedScanner)){
       _selectedScanner = null;
     }
@@ -48,7 +48,7 @@ class _settings extends State<Settings> {
 
   saveSettings() async{
     int response = await sql.updateData("UPDATE 'Settings' SET DeleteCheckBox = ${(_deleteCheck? 1 : 0)}, CancelCheckBox = ${(_cancelCheck? 1 : 0)}, Scanner = '$_selectedScanner' ");
-    settings.getSettings()?.scannerChoice = _selectedScanner;
+    settings.getSettings()?.setScannerChoice(_selectedScanner);
     settings.getSettings()?..setDeleteCheckBox(_deleteCheck?1:0);
     settings.getSettings()?.setCancelCheckBox(_cancelCheck?1:0);
   }
@@ -143,7 +143,7 @@ class _settings extends State<Settings> {
                               onPressed: (){
                                 saveSettings();
                                 Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
-                                    home()), (Route<dynamic> route) => false);
+                                    Home()), (Route<dynamic> route) => false);
                               },
                               icon: Icon(
                                 Icons.home,
@@ -207,7 +207,7 @@ class _settings extends State<Settings> {
                               onPressed: (){
                                 saveSettings();
                                 Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
-                                    home()), (Route<dynamic> route) => false);
+                                    Home()), (Route<dynamic> route) => false);
                               },
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,

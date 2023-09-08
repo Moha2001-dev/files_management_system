@@ -443,27 +443,31 @@ class _addFileState extends State<AddFile> {
                                               borderRadius: BorderRadius.circular(5.sp)
                                           ),
                                           child: IconButton(
-                                            icon: Icon(
-                                              Icons.scanner,
-                                              color: Colors.white,
-                                              size: 36,
-                                            ),
-                                            padding: EdgeInsets.zero,
-                                            onPressed: () async {
-                                              try{
-                                                if (_selectedScanner != null) {
-                                                  int index = _scanners.indexOf(_selectedScanner!);
-                                                  String? documentPath = await _flutterTwainScannerPlugin.scanDocument(index);
+                                              icon: Icon(
+                                                Icons.scanner,
+                                                color: Colors.white,
+                                                size: 36,
+                                              ),
+                                              padding: EdgeInsets.zero,
+                                              mouseCursor: SystemMouseCursors.forbidden,
+                                              onPressed: null
+                                            /*() async {
+                                                try{
+                                                  if (_selectedScanner != null) {
+                                                    int index = _scanners.indexOf(_selectedScanner!);
+                                                    String? documentPath = await _flutterTwainScannerPlugin.scanDocument(index);
 
-                                                  setState(() {
-                                                    _documentPath = documentPath;
-                                                  });
+                                                    setState(() {
+                                                      _documentPath = documentPath;
+                                                    });
+                                                  }
+                                                }catch(e){
+                                                  print(e);
                                                 }
-                                              }catch(e){
-                                                print(e);
-                                              }
-                                            },
-                                          )
+                                              },
+
+                                                   */
+                                          ),
                                       ),
                                       SizedBox(width: 8,),
                                       Container(
@@ -520,9 +524,10 @@ class _addFileState extends State<AddFile> {
                                                 labelText: "ملف المعاملة *"
                                             ),
                                             onChanged: (text){
-                                              _filePath = text;
+                                              setState(() {
+                                                _filePath = text;
+                                              });
                                             },
-
                                             validator: (value) {
                                               if (value == null || value.isEmpty) {
                                                 return 'رجاءا ادخل مسار الملف';
@@ -738,6 +743,13 @@ class _addFileState extends State<AddFile> {
                                             await appDucs.create(recursive: true);
                                           }
                                           File file = File(_filePath);
+                                          if(!await file.exists()){
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text('لا يوجد ملف $_filePath')),
+                                            );
+                                            return;
+                                          }
+
                                           File newFile = await file.copy(join(appDucs.path,'$_fileNumber${extension(file.path)}'));
 
                                           int isInsert =await insertToDatabase(newFile.path);
@@ -1337,5 +1349,10 @@ class _addFileState extends State<AddFile> {
     numbers.forEach((key, value) => number = number?.replaceAll(key, value));
 
     return number;
+  }
+
+  bool validator = false;
+   Future<bool> valid(String? value) async{
+    return File(value?? '').exists();
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:files_management_system/Pages/edit-screen/edit.dart';
 import 'package:files_management_system/Pages/home-screen/home-widgets/DeleteAlert.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
@@ -201,7 +202,11 @@ class _FileItemState extends State<FileItem> {
                         size: 21.w > 21 ? 21 : 21.w,
                       ),
                       padding: EdgeInsets.zero,
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => EditFile(file: widget.files,)));
+                      },
                     )),
                 Container(
                     width: 35.w > 35 ? 35 : 35.w,

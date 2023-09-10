@@ -217,10 +217,16 @@ class _HomeState extends State<Home> {
     }
 
     List<Map> response = await sqlDb.query("SELECT * FROM 'FilesInfo' $where");
-
+    print(response);
     files.clear();
+
     for(int index = 0; index < response.length; index++){
-      files.add(FMSFile.fmsDB(response[index]));
+      try {
+        files.add(FMSFile.fmsDB(response[index]));
+      // ignore: empty_catches
+      } on Exception catch (e) {
+
+      }
     }
 
     return response;

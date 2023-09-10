@@ -59,6 +59,7 @@ class _addFileState extends State<AddFile> {
   }
   final _pathFormKey = GlobalKey<FormState>();
   final _numFormKey = GlobalKey<FormState>();
+  final _dateFormKey = GlobalKey<FormState>();
 
   String _fileTitle ='';
   String _fileNumber ='';
@@ -642,17 +643,31 @@ class _addFileState extends State<AddFile> {
                                       SizedBox(width: 8,),
                                       SizedBox(
                                         width: 251.w + 122,
-                                        child: TextField(
-                                          controller: dateController,
-                                          decoration: InputDecoration(
-                                              border: OutlineInputBorder(),
-                                              labelText: "تاريخ المعاملة"
+                                        child: Form(
+                                          key: _dateFormKey,
+                                          child: TextFormField(
+                                            controller: dateController,
+                                            decoration: InputDecoration(
+                                                border: OutlineInputBorder(),
+                                                labelText: "تاريخ المعاملة"
+                                            ),
+                                            onChanged: (text){
+                                              setState(() {
+                                                _fileDate = text;
+                                              });
+                                            },
+                                            validator: (value){
+
+                                              if(value != null && (value?? "").isNotEmpty){
+                                                String? tempDate = engNumberToFarsi(value);
+                                                RegExp dateExp = RegExp(r'^\d{4}/(\d|\d\d)/(\d|\d\d)');
+                                                if(!dateExp.hasMatch(tempDate?? value)){
+                                                  return 'التاريخ المدخل يجب ان يكون مماثل الى : ${HijriCalendar.now().toString()} ';
+                                                }
+                                              }
+                                              return null;
+                                            },
                                           ),
-                                          onChanged: (text){
-                                            setState(() {
-                                              _fileDate = text;
-                                            });
-                                          },
                                         ),
                                       ),
                                     ],
@@ -723,7 +738,8 @@ class _addFileState extends State<AddFile> {
                                       onPressed: () async {
                                         bool pathValidate = _pathFormKey.currentState!.validate();
                                         bool numValidate = _numFormKey.currentState!.validate();
-                                        if (pathValidate && numValidate) {
+                                        bool dateValidate = _dateFormKey.currentState!.validate();
+                                        if (pathValidate && numValidate && dateValidate) {
                                           List<Map> isExist =  await isFileExist();
                                           if(isExist[0]['COUNT(*)'] > 0){
                                             ScaffoldMessenger.of(context).showSnackBar(

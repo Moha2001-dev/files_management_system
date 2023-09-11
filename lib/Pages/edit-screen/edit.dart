@@ -761,10 +761,24 @@ class _editFileState extends State<EditFile> {
                                       ),
                                       padding: EdgeInsets.zero,
                                       onPressed: () async {
+                                        if(_fileTitle == widget.file.title && _filePath == widget.file.path && _fileNumber == widget.file.fileNum && _fileDate == widget.file.date){
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('لم يتم اجراء تغييرات!')),
+                                          );
+
+                                          Navigator.of(context).pushAndRemoveUntil(
+                                              MaterialPageRoute(
+                                                  builder: (context) => Home()),
+                                                  (Route<dynamic> route) => false);
+                                          return;
+                                        }
+
                                         bool pathValidate = _pathFormKey.currentState!.validate();
                                         bool numValidate = _numFormKey.currentState!.validate();
                                         bool dateValidate = _dateFormKey.currentState!.validate();
                                         if (pathValidate && numValidate && dateValidate) {
+
+
                                           List<Map> isExist =  await isFileExist();
                                           if(isExist[0]['COUNT(*)'] > 0 && _fileNumber != widget.file.fileNum ){
                                             ScaffoldMessenger.of(context).showSnackBar(

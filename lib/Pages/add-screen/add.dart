@@ -765,10 +765,9 @@ class _addFileState extends State<AddFile> {
                                             );
                                             return;
                                           }
-
                                           File newFile = await file.copy(join(appDucs.path,'$_fileNumber${extension(file.path)}'));
 
-                                          int isInsert =await insertToDatabase(newFile.path);
+                                          int isInsert =await insertToDatabase(newFile.path,context);
                                           if(isInsert != 0){
                                             ScaffoldMessenger.of(context).showSnackBar(
                                               const SnackBar(content: Text('تم اضافة المعاملة')),
@@ -1105,17 +1104,26 @@ class _addFileState extends State<AddFile> {
     List<Map> response = await sql.query("SELECT COUNT(*) FROM 'FilesInfo' WHERE filenumber LIKE '$_fileNumber';");
     return response;
   }
-  insertToDatabase(String path) async{
-
+  insertToDatabase(String path,BuildContext context) async{
     String nowDate = DateFormat('yyyy-mm-dd').format(DateTime.now());
-
     String? fileDate = '';
     if(!_fileDate.isEmpty){
       fileDate = engNumberToFarsi(_fileDate);
       fileDate = fileDate?.replaceAll(RegExp(r'/'), '-');
     }
-    int result = await sql.insertData("INSERT INTO 'FilesInfo' (filenumber,${_fileTitle.isEmpty? "":"title,"}${_fileDate.isEmpty? "":"date,"}filepath,entryDate) VALUES ('$_fileNumber', ${_fileTitle.isEmpty? "":"'$_fileTitle',"}${_fileDate.isEmpty? "":"'$fileDate',"}'$path','$nowDate');");
-    return result;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("INSERT INTO 'FilesInfo' (filenumber,${_fileTitle.isEmpty? "":"title,"}${_fileDate.isEmpty? "":"date,"}filepath,entryDate) VALUES ('$_fileNumber', ${_fileTitle.isEmpty? "":"'$_fileTitle',"}${_fileDate.isEmpty? "":"'$fileDate',"}'$path','$nowDate');")),
+    );
+    try{
+      int result = await sql.insertData("INSERT INTO 'FilesInfo' (filenumber,${_fileTitle.isEmpty? "":"title,"}${_fileDate.isEmpty? "":"date,"}filepath,entryDate) VALUES ('$_fileNumber', ${_fileTitle.isEmpty? "":"'$_fileTitle',"}${_fileDate.isEmpty? "":"'$fileDate',"}'$path','$nowDate');");
+    }on  Exception catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
+
+
+    return 0;
   }
 
   ShowAlertDialug(BuildContext context){

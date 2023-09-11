@@ -28,9 +28,11 @@ class SqlDb{
     await db.execute('''
     CREATE TABLE "FilesInfo" (
     "filenumber" TEXT PRIMARY KEY, 
-    "title" text, 
-    "date" Date, 
-    "filepath" TEXT NOT NULL);
+    "title" TEXT DEFAULT 'empty', 
+    "date" DATE DEFAULT '1010-01-01', 
+    "filepath" TEXT NOT NULL,
+    "entryDate" DATE
+    );
     CREATE TABLE "Settings" (
     "CancelCheckBox" INTEGER(1) NOT NULL DEFAULT 0, 
     "DeleteCheckBox" INTEGER(1) NOT NULL DEFAULT 0, 

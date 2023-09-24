@@ -1111,9 +1111,6 @@ class _addFileState extends State<AddFile> {
       fileDate = engNumberToFarsi(_fileDate);
       fileDate = fileDate?.replaceAll(RegExp(r'/'), '-');
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("INSERT INTO 'FilesInfo' (filenumber,${_fileTitle.isEmpty? "":"title,"}${_fileDate.isEmpty? "":"date,"}filepath,entryDate) VALUES ('$_fileNumber', ${_fileTitle.isEmpty? "":"'$_fileTitle',"}${_fileDate.isEmpty? "":"'$fileDate',"}'$path','$nowDate');")),
-    );
     try{
       int result = await sql.insertData("INSERT INTO 'FilesInfo' (filenumber,${_fileTitle.isEmpty? "":"title,"}${_fileDate.isEmpty? "":"date,"}filepath,entryDate) VALUES ('$_fileNumber', ${_fileTitle.isEmpty? "":"'$_fileTitle',"}${_fileDate.isEmpty? "":"'$fileDate',"}'$path','$nowDate');");
     }on  Exception catch(e){

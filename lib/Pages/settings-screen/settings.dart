@@ -102,11 +102,12 @@ class _settings extends State<Settings> {
     _totalFiles = response[0]['COUNT (*)'];
 
     DateTime period = DateTime(now.year,now.month,now.day - 7);
-    response =await sql.count("SELECT COUNT (*) FROM FilesInfo WHERE entryDate <= '${now.year}-${now.month}-${now.day}' AND entryDate >='${period.year}-${period.month}-${period.day}' ;");
+    response =await sql.count("SELECT COUNT (*) FROM FilesInfo WHERE entryDate <= '${period.year}-${period.month}-${period.day}' ;");
     _totalFiles7Day = response[0]['COUNT (*)'];
+    print(_totalFiles7Day);print(response);
 
     period = DateTime(now.year,now.month,now.day - 30);
-    response =await sql.count("SELECT COUNT (*) FROM FilesInfo WHERE entryDate <= '${now.year}-${now.month}-${now.day}' AND entryDate >='${period.year}-${period.month}-${period.day}' ;");
+    response =await sql.count("SELECT COUNT (*) FROM FilesInfo WHERE entryDate <= '${period.year}-${period.month}-${period.day}' ;");
     _totalFiles30Day = response[0]['COUNT (*)'];
     return 0;
   }

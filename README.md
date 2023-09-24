@@ -21,6 +21,6 @@ Originally I developed this project at the request of my father and meant to man
 
 ## What Next For FMS?
 I am planning to add 2 more features:
-A direct way of adding attachments using an external Scanner.
-Tags that can be added to each File and could be customizable means you can create your own tags to categorize files.
+- A direct way of adding attachments using an external Scanner.
+- Tags that can be added to each File and could be customizable means you can create your own tags to categorize files.
 FMS was a good project to spend my free time on while I was looking for a job, However, It is not my main focus at the moment.

@@ -217,7 +217,6 @@ class _HomeState extends State<Home> {
     }
 
     List<Map> response = await sqlDb.query("SELECT * FROM 'FilesInfo' $where");
-    print(response);
     files.clear();
 
     for(int index = 0; index < response.length; index++){
